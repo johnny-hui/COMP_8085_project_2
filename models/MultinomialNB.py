@@ -6,6 +6,9 @@ from scipy.sparse import csr_matrix
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics import classification_report
 from sklearn.model_selection import train_test_split, GridSearchCV
+from utilities.constants import JOHNNY_EXPERIMENT_ONE_PKL_VECTORIZE_DIR, JOHNNY_EXPERIMENT_ONE_PKL_DIR, \
+    JOHNNY_EXPERIMENT_TWO_VECTORIZE_DIR, JOHNNY_EXPERIMENT_TWO_PKL_DIR
+from utilities.utility import pickle_model
 
 # Constants
 BORDER = "================================================================"
@@ -135,6 +138,17 @@ class MultinomialNB:
 
     @staticmethod
     def perform_experiment_one_training(file_path: str):
+        """
+        Performs experiment 1 using training mode.
+
+        @param file_path:
+            A string representing the file path
+            of test JSON file
+
+        @return: None
+        """
+        print("[+] Now performing Johnny's experiment 1 in training mode...")
+
         # Load the Preprocessed Data
         with open(file_path, 'r') as file:
             data = [json.loads(line) for line in file]
@@ -160,9 +174,8 @@ class MultinomialNB:
         X_validation_vectorized = vectorizer.transform(X_validation)
         X_test_vectorized = vectorizer.transform(X_test)
 
-        # Pickle the vectorizer
-        with open("pickled_models/naive_bayes/vectorizer.pkl", 'wb') as f:
-            pickle.dump(vectorizer, f)
+        # Save and pickle the vectorizer
+        pickle_model(vectorizer, save_path=JOHNNY_EXPERIMENT_ONE_PKL_VECTORIZE_DIR)
 
         # Define the parameter grid for hyperparameter tuning
         param_grid = {
@@ -182,21 +195,191 @@ class MultinomialNB:
             # Print best parameter setting for each target variable
             print("[+] Best Parameters for target variable ({}): {}".format(target, grid_search.best_params_))
 
-            # Pickle the classifier
-            with open(f"pickled_models/naive_bayes/multinomialNB_{target}.pkl", 'wb') as f:
-                pickle.dump(classifier, f)
-
             # Retrieve the best estimator and store it
             best_estimators[target] = grid_search.best_estimator_
 
         # Evaluate the hyper-tuned classifiers (best estimators) on the test set
         for target, best_estimator in best_estimators.items():
             y_pred_test = best_estimator.predict(X_test_vectorized)
+
+            # Save and pickle the classifier
+            pickle_model(best_estimator, save_path=JOHNNY_EXPERIMENT_ONE_PKL_DIR, target=target)
+
             print(BORDER)
             print(f"Classification Report for Target Variable ('{target}') on Test Set: ")
             print(classification_report(y_test[target], y_pred_test, zero_division=1))
             print(BORDER)
 
-    # TODO: Experiment 2: Try unigram (1, 1) and compare results (explain why better or worse?)
+    @staticmethod
+    def perform_experiment_one_inference(file_path: str):
+        """
+        Performs experiment 1 using inference mode
+        (pickled models)
 
-    # TODO: Experiment 3: Try a different vectorization technique (maybe one with semantics or meaning)
+        @param file_path:
+            A string representing the file path
+            of test JSON file
+
+        @return: None
+        """
+        print("[+] Now performing Johnny's experiment 1 in inference mode...")
+
+        # Load JSON test dataset
+        with open(file_path, 'r') as file:
+            data = [json.loads(line) for line in file]
+            test_df = pd.DataFrame(data)
+
+        # Extract labels (target variables)
+        y = test_df[['stars', 'useful', 'funny', 'cool']]
+
+        # Load vectorizer model
+        with open(JOHNNY_EXPERIMENT_ONE_PKL_VECTORIZE_DIR, 'rb') as f:
+            vectorizer = pickle.load(f)
+
+        # Vectorize the test data
+        X_test_vectorized = vectorizer.transform(test_df['text'])
+
+        # Evaluate each classifier
+        for target in y.columns:
+            with open(JOHNNY_EXPERIMENT_ONE_PKL_DIR.format(target), 'rb') as f:
+                classifier = pickle.load(f)
+                y_pred_test = classifier.predict(X_test_vectorized)
+
+                print(BORDER)
+                print(f"Classification Report for Target Variable ('{target}') on Test Set: ")
+                print(classification_report(test_df[target], y_pred_test, zero_division=1))
+                print(BORDER)
+
+    @staticmethod
+    def perform_experiment_two_training(file_path: str):
+        """
+        Performs experiment 2 using inference mode
+        (pickled models)
+
+        @attention: Experiment Details
+            This experiment aims to evaluate the performance of
+            the multinomialNB model when predicting the 'stars' label
+            by categorizing the 'stars' values into negative,
+            neutral, or positive values (originally from an
+            integer ranging from 0-5).
+
+            Hypothesis: By categorizing 'stars', the model's
+            performance increases when predicting given 'text'
+            from Yelp reviews.
+
+        @param file_path:
+            A string representing the file path
+            of test JSON file
+
+        @return: None
+        """
+        def stars_to_sentiment(stars: int):
+            if stars <= 2:
+                return 'negative'
+            elif stars == 3:
+                return 'neutral'
+            else:
+                return 'positive'
+
+        print("[+] Now performing Johnny's experiment 2 in training mode...")
+
+        # Load the Preprocessed Data
+        with open(file_path, 'r') as file:
+            data = [json.loads(line) for line in file]
+            df = pd.DataFrame(data)
+
+        # Convert 'stars' feature to sentiment labels (categories)
+        df['sentiment'] = df['stars'].apply(stars_to_sentiment)
+        df.drop(columns=['stars'], inplace=True)
+
+        # Feature Extraction
+        X = df['text']
+        y = df['sentiment']  # Target variable (sentiment labels)
+
+        # Split dataset (train 70%, val 15%, test 15%)
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+        X_val, X_test, y_val, y_test = train_test_split(X_test, y_test, test_size=0.5, random_state=42)
+
+        # Vectorize text data (N-grams & Bag of Words)
+        ngram_range = (1, 2)
+        vectorizer = CountVectorizer(ngram_range=ngram_range)
+        X_train_vectorized = vectorizer.fit_transform(X_train)
+        X_validation_vectorized = vectorizer.transform(X_val)
+        X_test_vectorized = vectorizer.transform(X_test)
+
+        # Define the parameter grid for hyperparameter tuning
+        param_grid = {
+            'alpha': [0.1, 0.5, 1.0, 1.5, 2.0],
+        }
+
+        # Train classifiers and perform hyperparameter tuning
+        classifier = MultinomialNB()
+        classifier.fit(X_train_vectorized, y_train)
+
+        grid_search = GridSearchCV(estimator=classifier, param_grid=param_grid, cv=5)
+        grid_search.fit(X_validation_vectorized, y_val)
+
+        # Print best parameter setting
+        print("[+] Best Parameters for Multinomial NB:", grid_search.best_params_)
+
+        # Evaluate the best estimator on the test set
+        y_pred_test = grid_search.predict(X_test_vectorized)
+        print(BORDER)
+        print("A Classification Report for Categorized 'stars' on Test Set:")
+        print(classification_report(y_test, y_pred_test))
+        print(BORDER)
+
+        # Save and pickle the vectorizer and classifier
+        pickle_model(vectorizer, save_path=JOHNNY_EXPERIMENT_TWO_VECTORIZE_DIR)
+        pickle_model(grid_search.best_estimator_, save_path=JOHNNY_EXPERIMENT_TWO_PKL_DIR)
+
+    @staticmethod
+    def perform_experiment_two_inference(file_path: str):
+        """
+        Performs experiment 2 but in inference mode
+        (using pickled models).
+
+        @param file_path:
+            A string representing the file path
+            of test JSON file
+
+        @return: None
+        """
+        def stars_to_sentiment(stars: int):
+            if stars <= 2:
+                return 'negative'
+            elif stars == 3:
+                return 'neutral'
+            else:
+                return 'positive'
+
+        print("[+] Now performing Johnny's experiment 2 in inference mode...")
+
+        # Load JSON test dataset
+        with open(file_path, 'r') as file:
+            data = [json.loads(line) for line in file]
+            test_df = pd.DataFrame(data)
+
+        # Convert 'stars' feature to sentiment labels (categories)
+        test_df['sentiment'] = test_df['stars'].apply(stars_to_sentiment)
+        test_df.drop(columns=['stars'], inplace=True)
+
+        # Get test data
+        x_test = test_df['text']
+        y_test = test_df['sentiment']
+
+        # Load vectorizer model and vectorize X_test
+        with open(JOHNNY_EXPERIMENT_TWO_VECTORIZE_DIR, 'rb') as f:
+            vectorizer = pickle.load(f)
+            X_test_vectorized = vectorizer.transform(x_test)
+
+        with open(JOHNNY_EXPERIMENT_TWO_PKL_DIR, 'rb') as f:
+            classifier = pickle.load(f)
+            y_pred_test = classifier.predict(X_test_vectorized)
+
+            print(BORDER)
+            print("A Classification Report for Categorized 'stars' on Test Set:")
+            print(classification_report(y_test, y_pred_test, zero_division=1))
+            print(BORDER)
+
+    # TODO: Experiment 3: Comparison with Other Algorithms/Model
