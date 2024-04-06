@@ -1,11 +1,14 @@
 import json
 import pickle
+
 import numpy as np
 import pandas as pd
 from scipy.sparse import csr_matrix
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics import classification_report
-from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import train_test_split
+
 from utilities.constants import JOHNNY_EXPERIMENT_ONE_PKL_VECTORIZE_DIR, JOHNNY_EXPERIMENT_ONE_PKL_DIR, \
     JOHNNY_EXPERIMENT_TWO_VECTORIZE_DIR, JOHNNY_EXPERIMENT_TWO_PKL_DIR
 from utilities.utility import pickle_model
@@ -141,6 +144,12 @@ class MultinomialNB:
         """
         Performs experiment 1 using training mode.
 
+        @attention: Experiment Details
+            This is just the base experiment and performing
+            sentimental analysis using Multinomial Naive Bayes,
+            coupled with Bag of Words and uni-gram and bi-gram
+            'text' feature representation.
+
         @param file_path:
             A string representing the file path
             of test JSON file
@@ -253,8 +262,7 @@ class MultinomialNB:
     @staticmethod
     def perform_experiment_two_training(file_path: str):
         """
-        Performs experiment 2 using inference mode
-        (pickled models)
+        Performs experiment 2 using training mode.
 
         @attention: Experiment Details
             This experiment aims to evaluate the performance of
@@ -378,8 +386,6 @@ class MultinomialNB:
             y_pred_test = classifier.predict(X_test_vectorized)
 
             print(BORDER)
-            print("A Classification Report for Categorized 'stars' on Test Set:")
+            print("A Classification Report for Categorized 'stars' on Test Set: ")
             print(classification_report(y_test, y_pred_test, zero_division=1))
             print(BORDER)
-
-    # TODO: Experiment 3: Comparison with Other Algorithms/Model

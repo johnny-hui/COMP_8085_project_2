@@ -4,7 +4,17 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="bc8e147c-0deb-4351-9803-53b0faa19d9d" name="Changes" comment="" />
+    <list default="true" id="bc8e147c-0deb-4351-9803-53b0faa19d9d" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/data/500000_v2.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/data/500000_v2_test.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/data/50000_v2.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/models/KNNRegressor.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/COMP_8085_project_2.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/COMP_8085_project_2.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/MultinomialNB.py" beforeDir="false" afterPath="$PROJECT_DIR$/models/MultinomialNB.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utilities/constants.py" beforeDir="false" afterPath="$PROJECT_DIR$/utilities/constants.py" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -20,6 +30,18 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;johnny-hui&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/johnny-hui/COMP_8085_project_2.git&quot;,
+    &quot;accountId&quot;: &quot;178ef88b-65e2-4a94-adac-25e6d5e5abe6&quot;
+  }
+}</component>
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$PROJECT_DIR$/utilities/preprocessing.py" root0="FORCE_HIGHLIGHTING" />
   </component>
@@ -41,18 +63,19 @@
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/johnny/PycharmProjects/COMP_8085_project_2&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/johnny/PycharmProjects/COMP_8085_project_2/pickled_models/johnny/experiment_2&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;configurable.group.editor&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyIntegratedToolsModulesConfigurable&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/pickled_models/johnny/experiment_2" />
       <recent name="$PROJECT_DIR$" />
       <recent name="$PROJECT_DIR$/data" />
     </key>
@@ -119,7 +142,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-python-sdk-09665e90c3a7-b11f5e8da5ad-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-233.15026.15" />
+        <option value="bundled-js-predefined-1d06a55b98c1-74d2a5396914-JavaScript-PY-241.14494.241" />
+        <option value="bundled-python-sdk-0509580d9d50-28c9f5db9ffe-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-241.14494.241" />
       </set>
     </attachedChunks>
   </component>
@@ -139,6 +163,13 @@
       <workItem from="1712127091867" duration="193000" />
       <workItem from="1712127288779" duration="13403000" />
       <workItem from="1712140724163" duration="334000" />
+      <workItem from="1712217552499" duration="280000" />
+      <workItem from="1712221883475" duration="19000" />
+      <workItem from="1712280249822" duration="1278000" />
+      <workItem from="1712281589705" duration="11508000" />
+      <workItem from="1712297994536" duration="18197000" />
+      <workItem from="1712346941068" duration="1090000" />
+      <workItem from="1712348252688" duration="22457000" />
     </task>
     <servers />
   </component>
