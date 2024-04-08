@@ -5,15 +5,19 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="bc8e147c-0deb-4351-9803-53b0faa19d9d" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/data/500000_v2.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/data/500000_v2_test.json" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/data/50000_v2.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/models/KNNRegressor.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/COMP_8085_project_2.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/COMP_8085_project_2.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/models/MaxEntClassifier.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pickled_models/johnny/experiment_1/multinomialNB_cool.pkl" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pickled_models/johnny/experiment_1/multinomialNB_funny.pkl" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pickled_models/johnny/experiment_1/multinomialNB_stars.pkl" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pickled_models/johnny/experiment_1/multinomialNB_useful.pkl" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pickled_models/johnny/experiment_1/vectorizer.pkl" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/KNNRegressor.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/models/MultinomialNB.py" beforeDir="false" afterPath="$PROJECT_DIR$/models/MultinomialNB.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/utilities/constants.py" beforeDir="false" afterPath="$PROJECT_DIR$/utilities/constants.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utilities/utility.py" beforeDir="false" afterPath="$PROJECT_DIR$/utilities/utility.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -63,7 +67,7 @@
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/johnny/PycharmProjects/COMP_8085_project_2/pickled_models/johnny/experiment_2&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/johnny/PycharmProjects/COMP_8085_project_2/pickled_models/johnny/experiment_1&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -75,9 +79,10 @@
 }</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/pickled_models/johnny/experiment_1" />
+      <recent name="$PROJECT_DIR$/data" />
       <recent name="$PROJECT_DIR$/pickled_models/johnny/experiment_2" />
       <recent name="$PROJECT_DIR$" />
-      <recent name="$PROJECT_DIR$/data" />
     </key>
   </component>
   <component name="RunManager" selected="Python.main">
@@ -169,7 +174,13 @@
       <workItem from="1712281589705" duration="11508000" />
       <workItem from="1712297994536" duration="18197000" />
       <workItem from="1712346941068" duration="1090000" />
-      <workItem from="1712348252688" duration="22457000" />
+      <workItem from="1712348252688" duration="22588000" />
+      <workItem from="1712392168853" duration="41000" />
+      <workItem from="1712443558509" duration="192000" />
+      <workItem from="1712468479328" duration="13565000" />
+      <workItem from="1712536512217" duration="20861000" />
+      <workItem from="1712570683287" duration="6745000" />
+      <workItem from="1712601278090" duration="13563000" />
     </task>
     <servers />
   </component>

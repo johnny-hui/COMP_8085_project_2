@@ -34,9 +34,12 @@ def parse_arguments():
 
         if opt == '-e':  # For experiment number
             try:
-                experiment = int(argument)
-                if not (1 <= experiment <= 3):
-                    sys.exit("[+] ERROR: Experiment must be an integer from 1 - 3 (-e option)")
+                if argument == "other":
+                    experiment = argument
+                else:
+                    experiment = int(argument)
+                    if not (1 <= experiment <= 3):
+                        sys.exit("[+] ERROR: Experiment must be an integer from 1 - 3 (-e option)")
             except ValueError:
                 sys.exit("[+] ERROR: Invalid data type provided for experiment number (-e option)!")
 

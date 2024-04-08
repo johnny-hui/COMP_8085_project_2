@@ -266,14 +266,16 @@ class MultinomialNB:
 
         @attention: Experiment Details
             This experiment aims to evaluate the performance of
-            the multinomialNB model when predicting the 'stars' label
-            by categorizing the 'stars' values into negative,
+            the multinomialNB model when predicting the
+            'stars, useful, funny, cool' labels
+            by categorizing their values into negative,
             neutral, or positive values (originally from an
-            integer ranging from 0-5).
+            integer continuous values).
 
-            Hypothesis: By categorizing 'stars', the model's
-            performance increases when predicting given 'text'
-            from Yelp reviews.
+            Hypothesis: By categorizing the sentiments
+            (stars, funny, cool, useful), the model's
+            performance increases when predicting given
+            categorized labels from Yelp reviews.
 
         @param file_path:
             A string representing the file path
@@ -281,6 +283,7 @@ class MultinomialNB:
 
         @return: None
         """
+        print("[+] Now performing Johnny's experiment 2 in training mode...")
         def stars_to_sentiment(stars: int):
             if stars <= 2:
                 return 'negative'
@@ -289,20 +292,38 @@ class MultinomialNB:
             else:
                 return 'positive'
 
-        print("[+] Now performing Johnny's experiment 2 in training mode...")
+        def categorize_value(value: int, thresholds: dict):
+            for category, threshold in thresholds.items():
+                if value <= threshold:
+                    return category
+            return None
 
         # Load the Preprocessed Data
         with open(file_path, 'r') as file:
             data = [json.loads(line) for line in file]
             df = pd.DataFrame(data)
 
-        # Convert 'stars' feature to sentiment labels (categories)
-        df['sentiment'] = df['stars'].apply(stars_to_sentiment)
-        df.drop(columns=['stars'], inplace=True)
+        # Categorize 'useful', 'funny', and 'cool' columns
+        useful_thresholds = {'not useful': df['useful'].quantile(0.25),
+                             'neutral': df['useful'].quantile(0.5),
+                             'very useful': df['useful'].max()}
+        funny_thresholds = {'not funny': df['funny'].quantile(0.25),
+                            'neutral': df['funny'].quantile(0.5),
+                            'very funny': df['funny'].max()}
+        cool_thresholds = {'not cool': df['cool'].quantile(0.25),
+                           'neutral': df['cool'].quantile(0.5),
+                           'very cool': df['cool'].max()}
+
+        df['stars_transformed'] = df['stars'].apply(stars_to_sentiment)
+        df['useful_transformed'] = df['useful'].apply(lambda x: categorize_value(x, useful_thresholds))
+        df['funny_transformed'] = df['funny'].apply(lambda x: categorize_value(x, funny_thresholds))
+        df['cool_transformed'] = df['cool'].apply(lambda x: categorize_value(x, cool_thresholds))
+
+        df.drop(columns=['stars', 'useful', 'funny', 'cool'], inplace=True)
 
         # Feature Extraction
         X = df['text']
-        y = df['sentiment']  # Target variable (sentiment labels)
+        y = df[['stars_transformed', 'useful_transformed', 'funny_transformed', 'cool_transformed']]
 
         # Split dataset (train 70%, val 15%, test 15%)
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
@@ -315,31 +336,41 @@ class MultinomialNB:
         X_validation_vectorized = vectorizer.transform(X_val)
         X_test_vectorized = vectorizer.transform(X_test)
 
+        # Save and pickle vectorizer
+        pickle_model(vectorizer, save_path=JOHNNY_EXPERIMENT_TWO_VECTORIZE_DIR)
+
         # Define the parameter grid for hyperparameter tuning
         param_grid = {
             'alpha': [0.1, 0.5, 1.0, 1.5, 2.0],
         }
 
-        # Train classifiers and perform hyperparameter tuning
-        classifier = MultinomialNB()
-        classifier.fit(X_train_vectorized, y_train)
+        # Train classifiers and perform hyperparameter tuning per target variable
+        best_estimators = {}
+        for target in y_train.columns:
+            classifier = MultinomialNB()
+            classifier.fit(X_train_vectorized, y_train[target])
 
-        grid_search = GridSearchCV(estimator=classifier, param_grid=param_grid, cv=5)
-        grid_search.fit(X_validation_vectorized, y_val)
+            # Perform GridSearchCV for hyperparameter tuning using the validation set
+            grid_search = GridSearchCV(estimator=classifier, param_grid=param_grid, cv=5)
+            grid_search.fit(X_validation_vectorized, y_val[target])
 
-        # Print best parameter setting
-        print("[+] Best Parameters for Multinomial NB:", grid_search.best_params_)
+            # Print best parameter setting for each target variable
+            print("[+] Best Parameters for target variable ({}): {}".format(target, grid_search.best_params_))
 
-        # Evaluate the best estimator on the test set
-        y_pred_test = grid_search.predict(X_test_vectorized)
-        print(BORDER)
-        print("A Classification Report for Categorized 'stars' on Test Set:")
-        print(classification_report(y_test, y_pred_test))
-        print(BORDER)
+            # Retrieve the best estimator and store it
+            best_estimators[target] = grid_search.best_estimator_
 
-        # Save and pickle the vectorizer and classifier
-        pickle_model(vectorizer, save_path=JOHNNY_EXPERIMENT_TWO_VECTORIZE_DIR)
-        pickle_model(grid_search.best_estimator_, save_path=JOHNNY_EXPERIMENT_TWO_PKL_DIR)
+        # Evaluate the hyper-tuned classifiers (best estimators) on the test set
+        for target, best_estimator in best_estimators.items():
+            y_pred_test = best_estimator.predict(X_test_vectorized)
+
+            # Save and pickle the classifier
+            pickle_model(best_estimator, save_path=JOHNNY_EXPERIMENT_TWO_PKL_DIR, target=target)
+
+            print(BORDER)
+            print(f"Classification Report for Target Variable ('{target}') on Test Set: ")
+            print(classification_report(y_test[target], y_pred_test, zero_division=1))
+            print(BORDER)
 
     @staticmethod
     def perform_experiment_two_inference(file_path: str):
@@ -353,6 +384,7 @@ class MultinomialNB:
 
         @return: None
         """
+
         def stars_to_sentiment(stars: int):
             if stars <= 2:
                 return 'negative'
@@ -361,6 +393,12 @@ class MultinomialNB:
             else:
                 return 'positive'
 
+        def categorize_value(value: int, thresholds: dict):
+            for category, threshold in thresholds.items():
+                if value <= threshold:
+                    return category
+            return None
+
         print("[+] Now performing Johnny's experiment 2 in inference mode...")
 
         # Load JSON test dataset
@@ -368,24 +406,40 @@ class MultinomialNB:
             data = [json.loads(line) for line in file]
             test_df = pd.DataFrame(data)
 
-        # Convert 'stars' feature to sentiment labels (categories)
-        test_df['sentiment'] = test_df['stars'].apply(stars_to_sentiment)
-        test_df.drop(columns=['stars'], inplace=True)
+        # Categorize 'useful', 'funny', and 'cool' columns
+        useful_thresholds = {'not useful': test_df['useful'].quantile(0.25),
+                             'neutral': test_df['useful'].quantile(0.5),
+                             'very useful': test_df['useful'].max()}
+        funny_thresholds = {'not funny': test_df['funny'].quantile(0.25),
+                            'neutral': test_df['funny'].quantile(0.5),
+                            'very funny': test_df['funny'].max()}
+        cool_thresholds = {'not cool': test_df['cool'].quantile(0.25),
+                           'neutral': test_df['cool'].quantile(0.5),
+                           'very cool': test_df['cool'].max()}
 
-        # Get test data
-        x_test = test_df['text']
-        y_test = test_df['sentiment']
+        test_df['stars_transformed'] = test_df['stars'].apply(stars_to_sentiment)
+        test_df['useful_transformed'] = test_df['useful'].apply(lambda x: categorize_value(x, useful_thresholds))
+        test_df['funny_transformed'] = test_df['funny'].apply(lambda x: categorize_value(x, funny_thresholds))
+        test_df['cool_transformed'] = test_df['cool'].apply(lambda x: categorize_value(x, cool_thresholds))
+
+        test_df.drop(columns=['stars', 'useful', 'funny', 'cool'], inplace=True)
+
+        # Feature Extraction
+        X_test = test_df['text']
+        y_test = test_df[['stars_transformed', 'useful_transformed', 'funny_transformed', 'cool_transformed']]
 
         # Load vectorizer model and vectorize X_test
         with open(JOHNNY_EXPERIMENT_TWO_VECTORIZE_DIR, 'rb') as f:
             vectorizer = pickle.load(f)
-            X_test_vectorized = vectorizer.transform(x_test)
+            X_test_vectorized = vectorizer.transform(X_test)
 
-        with open(JOHNNY_EXPERIMENT_TWO_PKL_DIR, 'rb') as f:
-            classifier = pickle.load(f)
-            y_pred_test = classifier.predict(X_test_vectorized)
+        # Evaluate each classifier
+        for target in y_test.columns:
+            with open(JOHNNY_EXPERIMENT_TWO_PKL_DIR.format(target), 'rb') as f:
+                classifier = pickle.load(f)
+                y_pred_test = classifier.predict(X_test_vectorized)
 
-            print(BORDER)
-            print("A Classification Report for Categorized 'stars' on Test Set: ")
-            print(classification_report(y_test, y_pred_test, zero_division=1))
-            print(BORDER)
+                print(BORDER)
+                print(f"A Classification Report for Categorized Target Variable ('{target}') on Test Set: ")
+                print(classification_report(test_df[target], y_pred_test, zero_division=1))
+                print(BORDER)
