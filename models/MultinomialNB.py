@@ -3,9 +3,11 @@ import pickle
 
 import numpy as np
 import pandas as pd
+from imblearn.over_sampling import RandomOverSampler
 from scipy.sparse import csr_matrix
-from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.metrics import classification_report
+from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import train_test_split
 
@@ -178,13 +180,16 @@ class MultinomialNB:
 
         # Vectorize text data (N-grams & Bag of Words)
         ngram_range = (1, 2)
-        vectorizer = CountVectorizer(ngram_range=ngram_range)
+        vectorizer = TfidfVectorizer(ngram_range=ngram_range)
         X_train_vectorized = vectorizer.fit_transform(X_train)
         X_validation_vectorized = vectorizer.transform(X_validation)
         X_test_vectorized = vectorizer.transform(X_test)
 
         # Save and pickle the vectorizer
         pickle_model(vectorizer, save_path=JOHNNY_EXPERIMENT_ONE_PKL_VECTORIZE_DIR)
+
+        # Instantiate RandomOverSampler
+        oversampler = RandomOverSampler(random_state=42)
 
         # Define the parameter grid for hyperparameter tuning
         param_grid = {
@@ -194,12 +199,15 @@ class MultinomialNB:
         # Train classifiers and perform hyperparameter tuning per target variable
         best_estimators = {}
         for target in y_train.columns:
+            # Perform oversampling on the target variable
+            X_resampled, y_resampled = oversampler.fit_resample(X_train_vectorized, y_train[target])
+
+            # Train classifier
             classifier = MultinomialNB()
-            classifier.fit(X_train_vectorized, y_train[target])
 
             # Perform GridSearchCV for hyperparameter tuning using the validation set
             grid_search = GridSearchCV(estimator=classifier, param_grid=param_grid, cv=5)
-            grid_search.fit(X_validation_vectorized, y_validation[target])
+            grid_search.fit(X_resampled, y_resampled)
 
             # Print best parameter setting for each target variable
             print("[+] Best Parameters for target variable ({}): {}".format(target, grid_search.best_params_))
@@ -215,6 +223,9 @@ class MultinomialNB:
             pickle_model(best_estimator, save_path=JOHNNY_EXPERIMENT_ONE_PKL_DIR, target=target)
 
             print(BORDER)
+            if target != 'stars':
+                mse = mean_squared_error(y_test[target], y_pred_test)
+                print(f"Mean Squared Error (MSE) for Target Variable '{target}' on Test Set: {mse}")
             print(f"Classification Report for Target Variable ('{target}') on Test Set: ")
             print(classification_report(y_test[target], y_pred_test, zero_division=1))
             print(BORDER)
@@ -255,6 +266,9 @@ class MultinomialNB:
                 y_pred_test = classifier.predict(X_test_vectorized)
 
                 print(BORDER)
+                if target != 'stars':
+                    mse = mean_squared_error(test_df[target], y_pred_test)
+                    print(f"Mean Squared Error (MSE) for Target Variable '{target}' on Test Set: {mse}")
                 print(f"Classification Report for Target Variable ('{target}') on Test Set: ")
                 print(classification_report(test_df[target], y_pred_test, zero_division=1))
                 print(BORDER)

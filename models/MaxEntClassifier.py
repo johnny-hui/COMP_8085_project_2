@@ -1,10 +1,10 @@
 import json
 import pickle
-
 import pandas as pd
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report
+from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import train_test_split, GridSearchCV
 from models.MultinomialNB import BORDER
 from utilities.constants import JOHNNY_EXPERIMENT_THREE_PKL_VECTORIZE_DIR, JOHNNY_EXPERIMENT_THREE_PKL_DIR, \
@@ -59,6 +59,9 @@ class MaxEntClassifier(LogisticRegression):
             pickle_model(classifier, save_path=JOHNNY_MAX_ENT_BASE_EXPERIMENT_PKL_DIR, target=target)
 
             print(BORDER)
+            if target != 'stars':
+                mse = mean_squared_error(y_test[target], y_pred_test)
+                print(f"Mean Squared Error (MSE) for Target Variable '{target}' on Test Set: {mse}")
             print(f"Classification Report for Target Variable ('{target}') on Test Set: ")
             print(classification_report(y_test[target], y_pred_test, zero_division=1))
             print(BORDER)
@@ -89,6 +92,9 @@ class MaxEntClassifier(LogisticRegression):
                 y_pred_test = classifier.predict(X_test_vectorized)
 
                 print(BORDER)
+                if target != 'stars':
+                    mse = mean_squared_error(test_df[target], y_pred_test)
+                    print(f"Mean Squared Error (MSE) for Target Variable '{target}' on Test Set: {mse}")
                 print(f"Classification Report for Target Variable ('{target}') on Test Set: ")
                 print(classification_report(test_df[target], y_pred_test, zero_division=1))
                 print(BORDER)
